@@ -1,0 +1,4 @@
+Run this to res-ze bmp files to next largest power of 2
+
+
+"c:\Program Files\GIMP 2\bin\gimp-2.8.exe" -i -b "(script-fu-resize-upper-pot \"L:\\roomtextures\\*.bmp\" 0)"

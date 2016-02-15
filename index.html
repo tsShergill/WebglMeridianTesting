@@ -1,0 +1,194 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+    <title>Test Roo File Renderer</title>
+    <link href="css/meridian.css" rel="stylesheet" />
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			body {
+				color: #000;
+				font-family:Monospace;
+				font-size:13px;
+				text-align:center;
+
+				background-color: #000;
+				margin: 0px;
+				overflow: hidden;
+			}
+
+			#info {
+				position: absolute;
+				top: 0px; width: 100%;
+				padding: 5px;
+			}
+
+			a {
+
+				color: #f00;
+			}
+
+		</style>
+</head>
+<body>
+    <div id="wrapper">
+    <nav id="nav">
+        <ul id="navigation">
+            <li><a href="#">Game &raquo;</a>
+                <ul>
+                    <li><a onClick="" href="#">Connect</a></li>
+                    <li><a onClick="" href="#">Disconnect</a></li>
+                    <li><a onClick="" href="#">Preferences</a></li>
+                    <li><a onClick="" href="#">Configuration</a></li>
+                    <li><a onClick="" href="#">Change Password</a></li>
+                    <li><a onClick="" href="#">Exit</a></li>
+                </ul>
+            </li>
+            <li><a href="#">Actions &raquo;</a>
+            </li>
+            <li><a href="#">Help &raquo;</a>
+                <ul>
+                    <li><a href="#">About</a></li>
+                </ul>
+            </li>
+            <li><a href="#">Testing &raquo;</a>
+                <ul>
+                <li><a href="#">Change Map &raquo;</a>
+                    <ul>
+                    <li><a onClick="LoadRoom('/resources/rooms/tos.roo')" href="#">Main Streets Tos</a></li>
+                    <li><a onClick="LoadRoom('/resources/rooms/toshall.roo')" href="#">Tos Adv Hall</a></li>
+                    <li><a onClick="LoadRoom('/resources/rooms/marion.roo')" href="#">Marion</a></li>
+                    <li><a onClick="LoadRoom('/resources/rooms/duke1.roo')" href="#">Duke Castle 1</a></li>
+                    <li><a onClick="LoadRoom('/resources/rooms/kocblack.roo')" href="#">Island Black Smith</a></li>
+                    <li><a onClick="LoadRoom('/resources/rooms/lichmaze.roo')" href="#">Lich Maze</a></li>
+                    </ul>
+                </li>
+                </ul>
+            </li>
+        </ul>
+    </nav>
+    </div>
+    <div id="container"></div>
+    <script src="js/three.min.js"></script>
+    <script src="js/FirstPersonControls.js"></script>
+    <script src="js/Detector.js"></script>
+    <script src="js/stats.min.js"></script>
+    <script src="js/AnaglyphEffect.js"></script>
+    <script src="js/StereoEffect.js"></script>
+    <script src="js/RooLoader.js"></script>
+    <script src="js/menu.js"></script>
+    <script src="js/bgf_texture_defs.js"></script>
+    <script src="js/TranspatentBgfs.js"></script>
+    
+    <script>
+
+        if (!Detector.webgl) Detector.addGetWebGLMessage();
+
+        var MenuHeight = 50
+        var WidthReduce = 10
+        var windowX = (window.innerWidth - WidthReduce);
+        var windowY = (window.innerHeight - MenuHeight);
+        var windowHalfX = (windowX - WidthReduce) / 2;
+        var windowHalfY = (windowY - MenuHeight) / 2;
+
+        var container, stats, effect;
+        var camera, scene, renderer, controls;
+        var clock = new THREE.Clock();
+        var delta;
+
+        init();
+        //LoadRoom("/resources/rooms/toshall.roo");
+        LoadRoom("/resources/rooms/tos.roo");
+        //LoadRoom("/resources/rooms/marion.roo");
+        //LoadRoom("/resources/rooms/asshq.roo");
+        //LoadRoom("/resources/rooms/castle1.roo");
+        //LoadRoom("/resources/rooms/duke1.roo");
+        //LoadRoom("/resources/rooms/outgrace.roo");
+        //LoadRoom("/resources/rooms/kocblack.roo"); // Rendering Error, to do with the upper / Mid / lower wall height calculations
+        //LoadRoom("/resources/rooms/lichmaze.roo");
+        
+        
+        
+
+        main_loop();
+
+
+        function init() {
+
+            container = document.getElementById('container');
+            camera = new THREE.PerspectiveCamera(45, windowX / windowY, 0.5, 3000000);
+            //camera.position.set(-1312, 1152, 150);
+            camera.position.set(-1600, 150, 2920);
+            controls = new THREE.FirstPersonControls(camera);
+            controls.movementSpeed = 1000;
+            controls.lookSpeed = 0.1;
+            scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0xfff4e5, 0.00000001);
+            scene.fog.near = 20000;
+            scene.fog.far = 200000;
+            var ambientLight = new THREE.AmbientLight("#ffffff");
+            scene.add(ambientLight);
+
+            renderer = new THREE.WebGLRenderer({ antialias: false });
+            renderer.setClearColor(scene.fog.color, 1);
+            renderer.setSize(windowX, windowY);
+            renderer.sortObjects = true;
+
+            container.appendChild(renderer.domElement);
+
+            stats = new Stats();
+            stats.domElement.style.position = 'absolute';
+            stats.domElement.style.top = '50px';
+            container.appendChild(stats.domElement);
+
+            // Anaglyph
+            //effect = new THREE.AnaglyphEffect(renderer);
+            //effect.setSize(window.innerWidth, window.innerHeight);
+
+            // Stereo Effect
+            //effect = new THREE.StereoEffect(renderer);
+            //effect.eyeSeparation = 10;
+            //effect.setSize(window.innerWidth, window.innerHeight);
+
+
+            window.addEventListener('resize', onWindowResize, false);
+        
+        }
+
+        function onWindowResize() {
+
+            windowX = (window.innerWidth - WidthReduce);
+            windowY = (window.innerHeight - MenuHeight);
+            windowHalfX = (windowX - WidthReduce) / 2;
+            windowHalfY = (windowY - MenuHeight) / 2;
+
+            camera.aspect = windowX / windowY;
+            camera.updateProjectionMatrix();
+
+            renderer.setSize(windowX, windowY);
+
+            // Anaglyph and Stereo
+            //effect.setSize(windowX, windowY);
+
+            controls.handleResize();
+
+        }
+
+        function main_loop() {
+
+            requestAnimationFrame(main_loop, renderer.domElement);
+            delta = clock.getDelta();
+
+            //THREE.AnimationHandler.update(delta);
+            // Regular
+            renderer.render(scene, camera);
+            stats.update();
+            // Anaglyph and Stereo
+            //effect.render(scene, camera);
+            controls.update(delta);
+
+        }
+
+    </script>
+</body>
+</html>
